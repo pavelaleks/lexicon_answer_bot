@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import os
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import (
     Message, CallbackQuery,
@@ -9,8 +8,6 @@ from aiogram.types import (
 )
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
-from aiogram.utils.webhook import get_new_configured_app
-from aiohttp import web
 
 from config import TOKEN, ADMIN_ID
 from keyboards import (
@@ -24,12 +21,8 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher()
 
-WEBHOOK_PATH = "/webhook"
-WEBHOOK_HOST = f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}"
-WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
-# === Обработчики ===
-
+# Приветствие с фото и кнопкой "Вперёд"
 @dp.message(F.text == "/start")
 async def start_handler(message: Message):
     photo = FSInputFile("lesha.jpg")
@@ -41,6 +34,8 @@ async def start_handler(message: Message):
         reply_markup=forward_kb
     )
 
+
+# Вторая часть приветствия
 @dp.callback_query(F.data == "start_more")
 async def continue_start(callback: CallbackQuery):
     await callback.answer()
@@ -53,10 +48,12 @@ async def continue_start(callback: CallbackQuery):
         reply_markup=start_options_kb
     )
 
+
+# Блок о руководителе с фотографией и кнопками
 @dp.callback_query(F.data == "about_director")
 async def about_director(callback: CallbackQuery):
     await callback.answer()
-    photo = FSInputFile("alekseev-2.jpg")
+    photo = FSInputFile("alekseev-2.jpg")  # убедитесь, что файл есть в папке проекта
     await callback.message.answer_photo(
         photo=photo,
         caption="<b>Павел Викторович Алексеев</b> — профессор, руководитель студии «Лексикон», "
@@ -70,6 +67,8 @@ async def about_director(callback: CallbackQuery):
         ])
     )
 
+
+# Кнопка "Курсы" и команда /courses
 @dp.callback_query(F.data == "show_courses")
 @dp.message(F.text == "/courses")
 async def show_courses(event: CallbackQuery | Message):
@@ -83,6 +82,8 @@ async def show_courses(event: CallbackQuery | Message):
         reply_markup=courses_kb
     )
 
+
+# Курсы: описание
 @dp.callback_query(F.data == "course_summer")
 async def show_course_summer(callback: CallbackQuery):
     await callback.answer()
@@ -159,6 +160,8 @@ async def show_course_exams(callback: CallbackQuery):
         reply_markup=course_exams_kb
     )
 
+
+# Обработка заявок по кнопке "Записаться"
 @dp.callback_query(F.data.startswith("signup_course_"))
 async def handle_signup(callback: CallbackQuery):
     user = callback.from_user
@@ -174,6 +177,8 @@ async def handle_signup(callback: CallbackQuery):
     await bot.send_message(chat_id=ADMIN_ID, text=message_text)
     await callback.answer("Спасибо! Ваша заявка передана.")
 
+
+# Команда /about
 @dp.message(F.text == "/about")
 async def about_command(message: Message):
     await message.answer(
@@ -196,7 +201,6 @@ async def about_command(message: Message):
         "🗺 <a href=\"https://2gis.ru/gornoaltaysk/firm/70000001093540016\">Посмотреть на карте (2ГИС)</a>\n\n"
         "<b>«Лексикон» — это не просто занятия, это языковая культура, внимание к ученику и серьёзный подход к обучению.</b>"
     )
-
 @dp.message(F.text == "/location")
 async def location_command(message: Message):
     await message.answer(
@@ -206,6 +210,7 @@ async def location_command(message: Message):
         disable_web_page_preview=True
     )
 
+# Кнопка "Записаться" и команда /signup
 @dp.callback_query(F.data == "signup_direct")
 @dp.message(F.text == "/signup")
 async def signup_direct(event: CallbackQuery | Message):
@@ -214,8 +219,10 @@ async def signup_direct(event: CallbackQuery | Message):
         msg = event.message
     else:
         msg = event
-    await msg.answer("✍️ Напишите, как Вас зовут и на какой курс хотите записаться — и я передам это Павлу Викторовичу. Вы сможете обсудить это напрямую в Telegram")
+    await msg.answer("✍️ Напишите, на какой курс хотите записаться — и я передам это Павлу Викторовичу.")
 
+
+# Кнопка "Задать вопрос" и команда /write
 @dp.callback_query(F.data == "write_direct")
 @dp.message(F.text == "/write")
 async def write_direct(event: CallbackQuery | Message):
@@ -226,6 +233,8 @@ async def write_direct(event: CallbackQuery | Message):
         msg = event
     await msg.answer("💬 Напишите ваш вопрос — и Павел Викторович ответит вам лично.")
 
+
+# Пересылка всех обычных сообщений админу
 @dp.message()
 async def forward_message(message: Message):
     user = message.from_user
@@ -236,9 +245,9 @@ async def forward_message(message: Message):
     except Exception:
         await message.answer("Произошла ошибка при передаче сообщения.")
 
-# === Запуск через webhook ===
 
-async def on_startup(app: web.Application):
+# Регистрация команд для Telegram-меню
+async def main():
     await bot.set_my_commands([
         BotCommand(command="start", description="📍 Старт"),
         BotCommand(command="courses", description="📚 Курсы"),
@@ -246,18 +255,8 @@ async def on_startup(app: web.Application):
         BotCommand(command="write", description="✉️ Написать руководителю"),
         BotCommand(command="location", description="📍 Где нас найти"),
     ])
-    await bot.set_webhook(WEBHOOK_URL)
-    logging.info(f"Webhook установлен: {WEBHOOK_URL}")
+    await dp.start_polling(bot)
 
-async def on_shutdown(app: web.Application):
-    logging.info("Удаляем webhook")
-    await bot.delete_webhook()
-    await bot.session.close()
-
-app = get_new_configured_app(dispatcher=dp, path=WEBHOOK_PATH)
-app.on_startup.append(on_startup)
-app.on_shutdown.append(on_shutdown)
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8000))
-    web.run_app(app, host="0.0.0.0", port=port)
+    asyncio.run(main())
