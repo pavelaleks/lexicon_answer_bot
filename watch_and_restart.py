@@ -4,10 +4,13 @@ import os
 from datetime import datetime
 import platform
 import requests
+from dotenv import load_dotenv
 
-# Настройки
-BOT_TOKEN = 'ТВОЙ_ТОКЕН_БОТА'
-ADMIN_ID = 'ТВОЙ_ID_ТЕЛЕГРАМ'
+# Загрузка переменных из .env
+load_dotenv()
+
+BOT_TOKEN = os.getenv('BOT_TOKEN')
+ADMIN_ID = os.getenv('ADMIN_ID')
 
 def log(message):
     with open("watcher.log", "a", encoding="utf-8") as f:
@@ -15,6 +18,10 @@ def log(message):
         f.write(f"[{now}] {message}\n")
 
 def notify_admin(message):
+    if not BOT_TOKEN or not ADMIN_ID:
+        log("⚠️ Не задан BOT_TOKEN или ADMIN_ID. Уведомление не отправлено.")
+        return
+
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     data = {
         "chat_id": ADMIN_ID,
@@ -55,7 +62,7 @@ def run():
         else:
             log("✅ Нет изменений")
 
-if __name__ == '__main__':
+if _name_ == '_main_':
     if platform.system() == "Windows":
         os.chdir(r"C:\Users\PC\PycharmProjects\lexicon_answer_bot")
         run()
