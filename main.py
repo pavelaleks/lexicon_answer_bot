@@ -1,5 +1,8 @@
 import asyncio
 import logging
+import os
+from datetime import datetime
+
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import (
     Message, CallbackQuery,
@@ -16,7 +19,21 @@ from keyboards import (
     forward_kb, start_options_kb
 )
 
-logging.basicConfig(level=logging.INFO)
+# Настройка логирования с выводом в файл и консоль
+log_dir = "logs"
+os.makedirs(log_dir, exist_ok=True)
+log_file = os.path.join(log_dir, f"bot_{datetime.now().strftime('%Y-%m-%d')}.log")
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(log_file, encoding="utf-8"),
+        logging.StreamHandler()
+    ]
+)
+
+logging.info("🚀 Бот запущен!")
 
 bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher()
