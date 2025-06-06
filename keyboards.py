@@ -18,21 +18,25 @@ start_options_kb = InlineKeyboardMarkup(inline_keyboard=[
 courses_kb = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="🌞 Летняя школа (9–20 июня)", callback_data="course_summer")],
     [InlineKeyboardButton(text="📘 Русский на отлично! (с 1 августа)", callback_data="course_russian")],
-    [InlineKeyboardButton(text="📚 Подготовка к ОГЭ/ЕГЭ (с 1 сентября)", callback_data="course_exams")]
+    [InlineKeyboardButton(text="📚 Подготовка к ОГЭ/ЕГЭ (с 1 сентября)", callback_data="course_exams")],
+    [InlineKeyboardButton(text="🏠 Главное меню", callback_data="start_more")]
 ])
 
 # Индивидуальные клавиатуры под курсами
 course_summer_kb = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="← Назад к списку курсов", callback_data="show_courses")],
+    [InlineKeyboardButton(text="🏠 Главное меню", callback_data="start_more")],
     [InlineKeyboardButton(text="📩 Оставить заявку", callback_data="signup_direct")]
 ])
 
 course_russian_kb = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="← Назад к списку курсов", callback_data="show_courses")],
+    [InlineKeyboardButton(text="🏠 Главное меню", callback_data="start_more")],
     [InlineKeyboardButton(text="📩 Оставить заявку", callback_data="signup_direct")]
 ])
 
 course_exams_kb = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="← Назад к списку курсов", callback_data="show_courses")],
+    [InlineKeyboardButton(text="🏠 Главное меню", callback_data="start_more")],
     [InlineKeyboardButton(text="📩 Оставить заявку", callback_data="signup_direct")]
 ])
