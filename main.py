@@ -84,7 +84,7 @@ async def about_director(callback: CallbackQuery):
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="🌐 Персональный сайт", url="https://palekseev.ru")],
             [InlineKeyboardButton(text="🏛 На сайте ГАГУ", url="https://www.gasu.ru/university/faculty_and_staff/2296/")],
-            [InlineKeyboardButton(text="⬅ Назад", callback_data="start_more")]
+            [InlineKeyboardButton(text="⬅ В главное меню", callback_data="start_more")]
         ])
     )
 
