@@ -10,6 +10,7 @@ start_options_kb = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="📚 Курсы и кружки", callback_data="show_courses")],
     [InlineKeyboardButton(text="👤 О руководителе студии", callback_data="about_director")],
     [InlineKeyboardButton(text="💬 Задать вопрос руководителю", callback_data="write_direct")],
+    [InlineKeyboardButton(text="📝 Тренировка пунктуации", url="https://t.me/lexicon_punctuation_bot")],
     [InlineKeyboardButton(text="📍 Где нас найти", url="https://2gis.ru/gornoaltaysk/firm/70000001093540016")]
 ])
 
